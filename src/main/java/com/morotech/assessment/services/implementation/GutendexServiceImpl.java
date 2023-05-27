@@ -2,12 +2,15 @@ package com.morotech.assessment.services.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.morotech.assessment.dtos.BookDto;
 import com.morotech.assessment.dtos.GutendexDto;
+import com.morotech.assessment.dtos.ResponseBook;
 import com.morotech.assessment.exceptions.InvalidInputException;
 import com.morotech.assessment.model.Book;
 import com.morotech.assessment.services.GutendexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -27,12 +31,13 @@ import java.util.Locale;
 public class GutendexServiceImpl implements GutendexService {
    // private  RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
    private final RestTemplate restTemplate;
+   private final ModelMapper mapper;
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private HttpHeaders headers;
     private static final String DOMAIN="https://gutendex.com/";
     @Override
-    public List<Book> searchBooksByTitle(String title) {
+    public ResponseBook searchBooksByTitle(String title) {
         if (StringUtils.isEmpty(title)) throw new InvalidInputException("The title can not be empty for this operation");
         List <Book> results=new ArrayList<>();
         title=title.toLowerCase(Locale.ROOT);
@@ -61,6 +66,9 @@ public class GutendexServiceImpl implements GutendexService {
             log.error( "Something went wrong with the Call to Gutendex "+e);
 
         }
-        return results;
+        List<BookDto> books=results.stream().map(result->mapper.map(result,BookDto.class)).collect(Collectors.toList());
+        ResponseBook responseBook=new ResponseBook();
+        responseBook.setBooks(books);
+        return responseBook;
     }
 }

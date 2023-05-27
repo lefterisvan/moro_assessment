@@ -2,6 +2,9 @@ package com.morotech.assessment.serviceTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.morotech.assessment.AssessmentApplicationTests;
+import com.morotech.assessment.dtos.BookDto;
+import com.morotech.assessment.dtos.PersonDto;
+import com.morotech.assessment.dtos.ResponseBook;
 import com.morotech.assessment.model.Book;
 import com.morotech.assessment.model.Person;
 import com.morotech.assessment.services.implementation.GutendexServiceImpl;
@@ -11,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +41,8 @@ public class GutendexServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
-
+    @Spy
+    private ModelMapper modelMapper;
 
     @InjectMocks
     GutendexServiceImpl gutendexService;
@@ -46,6 +52,7 @@ public class GutendexServiceTest {
     @BeforeEach
     void initUseCase() {
 
+        modelMapper = new ModelMapper();
         headers = new HttpHeaders();
         List<MediaType> media= Arrays.asList(MediaType.APPLICATION_JSON);
         headers.setAccept(media);
@@ -65,8 +72,10 @@ public class GutendexServiceTest {
 
     Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenReturn(response);
-        List<Book> results=gutendexService.searchBooksByTitle(title);
-        assertEquals(getResults(), results);
+        ResponseBook results=gutendexService.searchBooksByTitle(title);
+        ResponseBook expected=new ResponseBook();
+        expected.setBooks(getResults());
+        assertEquals(expected, results);
     }
     @Test
     public void notFound_CallForSearchByTitle() throws URISyntaxException {
@@ -80,10 +89,11 @@ public class GutendexServiceTest {
 
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenReturn(response);
-        List<Book> results=gutendexService.searchBooksByTitle(title);
+        ResponseBook results=gutendexService.searchBooksByTitle(title);
+        ResponseBook expected=new ResponseBook();
 
 
-        assertEquals(new ArrayList<>(), results);
+        assertEquals(expected, results);
     }
     @Test
     public void connectionError_CallForSearchByTitle() throws URISyntaxException {
@@ -130,48 +140,24 @@ public class GutendexServiceTest {
     }
 
 
-    private List<Book> getResults()
+    private List<BookDto> getResults()
     {
-        List<Book> results= new ArrayList<>();
-        Book book1=new Book();
+        List<BookDto> results= new ArrayList<>();
+        BookDto book1=new BookDto();
         book1.setId(1400);
         book1.setTitle("Great Expectations");
-        book1.setAuthors(Arrays.asList(new Person("Dickens, Charles",1812,1870)));
-        book1.setSubjects(Arrays.asList( "Benefactors -- Fiction","Bildungsromans", "England -- Fiction","Ex-convicts -- Fiction","Man-woman relationships -- Fiction","Orphans -- Fiction","Revenge -- Fiction","Young men -- Fiction"));
-        book1.setBookshelves(Arrays.asList( "Best Books Ever Listings"));
+        book1.setAuthors(Arrays.asList(new PersonDto("Dickens, Charles",1812,1870)));
         book1.setLanguages(Arrays.asList("en"));
-        book1.setCopyright(false);
-        book1.setMediaType("Text");
         book1.setDownloadCount(17376);
-        Map <String,String> formats=new HashMap<>();
-        formats.put("application/x-mobipocket-ebook","https://www.gutenberg.org/ebooks/1400.kf8.images");
-        formats.put("application/epub+zip","https://www.gutenberg.org/ebooks/1400.epub3.images");
-        formats.put("image/jpeg","https://www.gutenberg.org/cache/epub/1400/pg1400.cover.medium.jpg");
-        formats.put("text/plain; charset=utf-8","https://www.gutenberg.org/files/1400/1400-0.txt");
-        formats.put("text/html; charset=utf-8","https://www.gutenberg.org/files/1400/1400-h/1400-h.htm");
-        formats.put("text/html","https://www.gutenberg.org/ebooks/1400.html.images");
-        formats.put("application/rdf+xml","https://www.gutenberg.org/ebooks/1400.rdf");
-        book1.setFormats(formats);
         results.add(book1);
 
 
-        Book book2=new Book();
+        BookDto book2=new BookDto();
         book2.setId(8608);
         book2.setTitle("Great Expectations");
-        book2.setAuthors(Arrays.asList(new Person("Dickens, Charles",1812,1870)));
-        book2.setSubjects(Arrays.asList( "Benefactors -- Fiction","Bildungsromans", "England -- Fiction","Ex-convicts -- Fiction","Man-woman relationships -- Fiction","Orphans -- Fiction","Revenge -- Fiction","Young men -- Fiction"));
-        book2.setBookshelves(Arrays.asList( "Best Books Ever Listings"));
+        book2.setAuthors(Arrays.asList(new PersonDto("Dickens, Charles",1812,1870)));
         book2.setLanguages(Arrays.asList("en"));
-        book2.setCopyright(true);
-        book2.setMediaType("Sound");
         book2.setDownloadCount(37);
-        Map <String,String> formats2=new HashMap<>();
-        formats2.put("audio/mpeg","http://www.gutenberg.org/files/8608/mp3/8608-094.mp3");
-        formats2.put("application/zip","http://www.gutenberg.org/files/8608/8608-mp3.zip");
-        formats2.put("application/rdf+xml","http://www.gutenberg.org/ebooks/8608.rdf");
-        formats2.put("text/plain; charset=us-ascii","http://www.gutenberg.org/files/8608/8608-readme.txt");
-        formats2.put("text/html; charset=iso-8859-1","http://www.gutenberg.org/files/8608/8608-index.htm");
-        book2.setFormats(formats2);
         results.add(book2);
         return results;
     }

@@ -1,6 +1,8 @@
 package com.morotech.assessment.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +23,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Import({SpringDataRestConfiguration.class, BeanValidatorPluginsConfiguration.class})
 
 public class AssessmentConfig {
-
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        modelMapper.getConfiguration().setFullTypeMatchingRequired(true);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper;
+    }
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
