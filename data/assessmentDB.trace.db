@@ -1,0 +1,21 @@
+2023-05-28 10:48:36 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "truncate [*]flyway_schema_history"; expected "TABLE"; SQL statement:
+truncate flyway_schema_history [42001-214]
+2023-05-28 10:48:46 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FLYWAY_SCHEMA_HISTORY" not found (candidates are: "flyway_schema_history"); SQL statement:
+truncate table  flyway_schema_history [42103-214]
+2023-05-28 10:49:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "truncate  [*]flyway_schema_history"; expected "TABLE"; SQL statement:
+truncate  flyway_schema_history [42001-214]
+2023-05-28 10:49:02 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "truncate  [*]flyway_schema_history"; expected "TABLE"; SQL statement:
+truncate  flyway_schema_history [42001-214]
+2023-05-28 10:49:07 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "truncate  [*]flyway_schema_history"; expected "TABLE"; SQL statement:
+truncate  flyway_schema_history [42001-214]
+2023-05-28 10:49:21 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * from [*]table  flyway_schema_history"; expected "identifier"; SQL statement:
+select * from table  flyway_schema_history [42001-214]
+2023-05-28 10:49:44 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "truncate [*]""flyway_schema_history"""; expected "TABLE"; SQL statement:
+truncate "flyway_schema_history" [42001-214]

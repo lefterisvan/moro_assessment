@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface GutendexService {
         public ResponseBook searchBooksByTitle(String title);
+        public  List<Book> searchBooksById(Integer id);
 
 }
