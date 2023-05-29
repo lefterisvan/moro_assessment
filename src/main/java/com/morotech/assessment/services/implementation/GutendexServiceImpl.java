@@ -11,8 +11,11 @@ import com.morotech.assessment.services.GutendexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -51,10 +54,12 @@ public class GutendexServiceImpl implements GutendexService {
     /**
      * Gets as parameter the title of a book. Creates a valid HTTP request with HTTP Client API
      * and makes a GET request towards Gutendex in order to retrieve data for the book regarding the given title
+     * This operation it has cache mechanism
      * @param title
      * @return
      */
     @Override
+    @Cacheable(value = "booksByTitle")
     public ResponseBook searchBooksByTitle(String title) {
 
         log.info("-- searchBooksByTitle is starting with title "+title);
@@ -132,5 +137,11 @@ public class GutendexServiceImpl implements GutendexService {
         }
         log.info("-- end of searchBooksById with response" + booksFromRequest);
         return booksFromRequest;
+    }
+
+    @Scheduled(fixedDelay = 60000) // Runs 5 hours
+    @CacheEvict(value = "booksByTitle", allEntries = true)
+    public void evictCache() {
+        log.info("Evicting booksByTitle cache");
     }
 }
