@@ -35,7 +35,8 @@ public class GutendexServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
-
+    @Spy
+    ModelMapper modelMapper;
     @InjectMocks
     GutendexServiceImpl gutendexService;
     private HttpHeaders headers;
@@ -48,6 +49,7 @@ public class GutendexServiceTest {
         List<MediaType> media = Arrays.asList(MediaType.APPLICATION_JSON);
         headers.setAccept(media);
         gutendexService.init();
+        modelMapper=new ModelMapper();
     }
 
     //testing searchBooksByTitle operation

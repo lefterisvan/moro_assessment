@@ -10,7 +10,6 @@
 	</parent>
 	<groupId>com.morotech</groupId>
 	<artifactId>assessment</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>assessment</name>
 	<description>Assessment for moro tech regarding books</description>
 	<properties>
@@ -99,6 +98,7 @@
     </dependencies>
 
 	<build>
+		<finalName>moro-assessment</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.asciidoctor</groupId>

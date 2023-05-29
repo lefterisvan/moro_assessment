@@ -1,5 +1,6 @@
 package com.morotech.assessment.controllers;
 
+import com.morotech.assessment.dtos.BookDetailsDTO;
 import com.morotech.assessment.dtos.BookDto;
 import com.morotech.assessment.dtos.BookRatingDto;
 import com.morotech.assessment.dtos.ResponseBook;
@@ -37,9 +38,26 @@ public class BookController {
 
 
     @PostMapping("/rateABook")
-    public String bookRating(@RequestBody @Valid BookRatingDto bookRatingDto) throws SQLException {
+    @ApiOperation(value = "Gets as an input a BookRatingDto (which contains the id of a book, rating and reviews by a reader)," +
+            " makes a request towards Gutendex for retrieving the book by the id in order to check if the book exists and then saves the reviews in the database and returns a message if the process completed successfully")
+    @ApiResponses(value = {@ApiResponse(code = 400, message = "The rating must not be null "),
+            @ApiResponse(code = 404, message = "The book that you are looking for does not exist"),
+            @ApiResponse(code = 500, message = "Something went wrong in database. Please check the connection"),
+            @ApiResponse(code = 200, message = "Thank you for your rating")
+    })
+    public String bookRating(@RequestBody @Valid BookRatingDto bookRatingDto) throws SQLException {return  bookRatingService.bookRating(bookRatingDto);}
 
-        return  bookRatingService.bookRating(bookRatingDto);
+    @GetMapping("/bookDetails")
+    @ApiOperation(value = "Gets as an input the id of a book, searches the book in the database , retrieves the rating and the reviews. Makes a request towards Gutendex for retrieving the book details and" +
+            "returns the book details, bokk rating and book reviews ")
+    @ApiResponses(value = {@ApiResponse(code = 400, message = "The id must have a value "),@ApiResponse(code = 400, message = "The id must be greater than 0"),
+            @ApiResponse(code = 404, message = "There is no rating for this book"),
+            @ApiResponse(code = 404, message = "The book that you are looking for does not exist in Gutendex"),
+            @ApiResponse(code = 200, message = "Returns the BookDetailsDto object")
+    })
+    public BookDetailsDTO bookDetails(@RequestParam Integer id)
+    {
+        return bookRatingService.getBookDetails(id);
     }
 
 

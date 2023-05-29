@@ -56,7 +56,7 @@ public class GutendexServiceImpl implements GutendexService {
      */
     @Override
     public ResponseBook searchBooksByTitle(String title) {
-       // headers.setAccept(media);
+
         log.info("-- searchBooksByTitle is starting with title "+title);
         if (StringUtils.isEmpty(title))
             throw new InvalidInputException("The title can not be empty for this operation");

@@ -4,7 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity(name="book_rating")
+@Entity
 @Table(name = "book_rating")
 @Data
 @RequiredArgsConstructor

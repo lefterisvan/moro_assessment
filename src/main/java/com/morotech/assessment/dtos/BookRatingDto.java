@@ -1,6 +1,8 @@
 package com.morotech.assessment.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.constraints.Max;
@@ -8,6 +10,8 @@ import javax.validation.constraints.Min;
 
 @Data
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookRatingDto {
     @Min(value = 0,message = "The minimum value is 0")
     private int bookId;

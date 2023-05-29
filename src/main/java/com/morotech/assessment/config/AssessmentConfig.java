@@ -20,7 +20,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @Slf4j
 @EnableSwagger2
-@Import({SpringDataRestConfiguration.class, BeanValidatorPluginsConfiguration.class})
 
 public class AssessmentConfig {
     @Bean
@@ -35,7 +34,7 @@ public class AssessmentConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.any())
+                .apis(RequestHandlerSelectors.basePackage("com.morotech.assessment"))
                 .paths(PathSelectors.any())
                 .build();
     }
