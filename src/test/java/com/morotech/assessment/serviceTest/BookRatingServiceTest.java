@@ -21,13 +21,9 @@ import org.modelmapper.ModelMapper;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -190,6 +186,75 @@ public class BookRatingServiceTest {
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
             bookRatingService.getBookDetails(bookId);
+        });
+    }
+
+
+
+
+
+
+    //------------------------------------------//
+    @Test
+    public void getTopNOrderByAvg_ValidN() {
+        // Arrange
+        Integer N = 5;
+        List<Integer> bookIds = Arrays.asList(1, 2, 3, 4, 5);
+        List<Book> books = new ArrayList<>();
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+
+        when(bookRatingRepository.getTopNOrderByAvg()).thenReturn(bookIds);
+        when(gutendexService.searchBooksByListIds(bookIds)).thenReturn(books);
+        when(bookRatingRepository.getAverageRatingById(anyInt())).thenReturn(Optional.of(4.5));
+        when(bookRatingRepository.getReviewsById(anyInt())).thenReturn(new ArrayList<>());
+
+        // Act
+        List<BookDetailsDTO> result = bookRatingService.getTopNOrderByAvg(N);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(N, result.size());
+    }
+
+    @Test
+    public void getTopNOrderByAvg_NullN() {
+
+        assertThrows(InvalidInputException.class, () -> {
+            bookRatingService.getTopNOrderByAvg(null);
+        });
+    }
+
+    @Test
+    public void getTopNOrderByAvg_InvalidN() {
+
+        assertThrows(InvalidInputException.class, () -> {
+            bookRatingService.getTopNOrderByAvg(0);
+        });
+    }
+
+    @Test
+    public void getTopNOrderByAvg_NoRatings() {
+        // Arrange
+        Integer N = 5;
+        List<Integer> bookIds = Arrays.asList(1, 2, 3, 4, 5);
+        List<Book> books = new ArrayList<>();
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+        books.add(new Book());
+
+        when(bookRatingRepository.getTopNOrderByAvg()).thenReturn(bookIds);
+        when(gutendexService.searchBooksByListIds(bookIds)).thenReturn(books);
+        when(bookRatingRepository.getAverageRatingById(Mockito.anyInt())).thenReturn(Optional.empty());
+
+        // Assert
+        assertThrows(InvalidInputException.class, () -> {
+            bookRatingService.getTopNOrderByAvg(N);
         });
     }
 }

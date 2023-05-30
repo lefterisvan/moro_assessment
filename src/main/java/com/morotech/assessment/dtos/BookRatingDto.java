@@ -1,5 +1,6 @@
 package com.morotech.assessment.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class BookRatingDto {
     @Max(value = 5,message = "The maximum value is 5")
     private int rating;
     private String review;
+    @JsonIgnore
     private Date creationDate;
 
 }
