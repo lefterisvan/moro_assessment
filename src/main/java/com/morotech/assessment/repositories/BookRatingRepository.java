@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Connects the application with the database and queries the database
+ */
 @Repository
 public interface BookRatingRepository extends JpaRepository<BookRating, Integer> {
 

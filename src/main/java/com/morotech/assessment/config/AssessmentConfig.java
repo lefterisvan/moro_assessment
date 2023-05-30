@@ -19,12 +19,19 @@ import springfox.documentation.spring.data.rest.configuration.SpringDataRestConf
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * This class is the configuration class of the project
+ */
 @Configuration
 @Slf4j
 @EnableSwagger2
 @EnableCaching
 @EnableScheduling
 public class AssessmentConfig {
+    /**
+     * The model mapper is used for mapping objects
+     * @return
+     */
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
@@ -33,6 +40,11 @@ public class AssessmentConfig {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper;
     }
+
+    /**
+     * Docket is used by the swagger in order to determine what should be depicted
+     * @return
+     */
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -42,6 +54,10 @@ public class AssessmentConfig {
                 .build();
     }
 
+    /**
+     * The rest template is used to make the calls to Gutendex
+     * @return
+     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate(new HttpComponentsClientHttpRequestFactory());

@@ -18,6 +18,9 @@ import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Controls all the incoming requests
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/book")
@@ -26,6 +29,12 @@ public class BookController {
 
     private final GutendexService gutendexService;
     private final BookRatingService bookRatingService;
+
+    /**
+     * Gets as an input a title of a book, makes a request towards Gutendex and returns the results
+     * @param title
+     * @return
+     */
     @GetMapping("/bookSearch")
     @ApiOperation(value = "Gets as an input a title of a book, makes a request towards Gutendex and returns the results")
     @ApiResponses(value = {@ApiResponse(code = 400, message = "Invalid input "),
@@ -36,6 +45,13 @@ public class BookController {
         return gutendexService.searchBooksByTitle(title);
     }
 
+    /**
+     * Gets as an input a BookRatingDto (which contains the id of a book, rating and reviews by a reader),
+     * makes a request towards Gutendex for retrieving the book by the id in order to check if the book exists and then saves the reviews in the database and returns a message if the process completed successfully
+     * @param bookRatingDto
+     * @return
+     * @throws SQLException
+     */
 
     @PostMapping("/rateABook")
     @ApiOperation(value = "Gets as an input a BookRatingDto (which contains the id of a book, rating and reviews by a reader)," +
@@ -47,6 +63,12 @@ public class BookController {
     })
     public String bookRating(@RequestBody @Valid BookRatingDto bookRatingDto) throws SQLException {return  bookRatingService.bookRating(bookRatingDto);}
 
+    /**
+     * "Gets as an input the id of a book, searches the book in the database , retrieves the average rating and the reviews. Makes a request towards Gutendex for retrieving the book details and
+     * returns the book details, book rating and book reviews
+     * @param id
+     * @return
+     */
     @GetMapping("/bookDetails")
     @ApiOperation(value = "Gets as an input the id of a book, searches the book in the database , retrieves the average rating and the reviews. Makes a request towards Gutendex for retrieving the book details and" +
             "returns the book details, book rating and book reviews ")
@@ -60,6 +82,12 @@ public class BookController {
         return bookRatingService.getBookDetails(id);
     }
 
+    /**
+     * Gets as an input the number of the books that the user wants to see, searches the books in the database , retrieves the average rating and the reviews.
+     * Makes a request towards Gutendex by ids for retrieving the details of all the books and returns a list with the books details , average books rating and books reviews
+     * @param numberOfBooks
+     * @return
+     */
     @GetMapping("/getBookDetailsByAvgRating")
     @ApiOperation(value = "Gets as an input the number of the books that the user wants to see, searches the books in the database , retrieves the average rating and the reviews. " +
             "Makes a request towards Gutendex by ids for retrieving the details of all the books and returns a list with the books details , average books rating and books reviews ")

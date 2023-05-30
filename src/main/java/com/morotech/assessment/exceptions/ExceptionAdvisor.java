@@ -14,6 +14,9 @@ import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+/**
+ * Handles all the exception that the application raises in order to protect the back-end logic and inform the client with a message that he understands
+ */
 @ControllerAdvice
 @Slf4j
 public class ExceptionAdvisor {
