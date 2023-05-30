@@ -11,14 +11,18 @@ import com.morotech.assessment.services.GutendexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +50,7 @@ public class BookRatingServiceImpl implements BookRatingService {
 
     @Override
     @Transactional
+    @Cacheable(value = "getBookDetails")
     public BookDetailsDTO getBookDetails(Integer id) {
         log.info("-- getBookDetails is starting with input "+id);
         if (id==null) throw new InvalidInputException("The id must have a value");
@@ -63,4 +68,30 @@ public class BookRatingServiceImpl implements BookRatingService {
         log.info("-- getBookDetails finishes with output "+bookDetails);
         return bookDetails;
     }
+
+    @Override
+    @Transactional
+    public List<BookDetailsDTO> getTopNOrderByAvg(Integer N) {
+        log.info("-- getTopNOrderByAvg is starting with input "+N);
+        if (N==null) throw new InvalidInputException("The N must have a value");
+        if(N<1) throw new InvalidInputException("The N must be greater than 0");
+        List<Integer> ids=bookRatingRepository.getTopNOrderByAvg().subList(0,  N);
+
+        List<Book> booksByGutendex=gutendexService.searchBooksByListIds(ids);
+
+        List<BookDetailsDTO> topBookDetails=booksByGutendex.stream().map(book -> {
+            BookDetailsDTO bookDetails=modelMapper.map(book,BookDetailsDTO.class);
+            Double avgRating= bookRatingRepository.getAverageRatingById(book.getId()).get();
+            bookDetails.setRating(avgRating);
+            List<String> reviews=bookRatingRepository.getReviewsById(book.getId());
+            bookDetails.setReviews(reviews);
+            return bookDetails;
+        }).collect(Collectors.toList());
+        log.info("-- getTopNOrderByAvg ends with output "+topBookDetails);
+        return topBookDetails;
+
+
+    }
+
+
 }

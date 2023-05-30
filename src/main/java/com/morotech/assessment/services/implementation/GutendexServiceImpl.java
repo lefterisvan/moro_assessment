@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -139,7 +142,47 @@ public class GutendexServiceImpl implements GutendexService {
         return booksFromRequest;
     }
 
-    @Scheduled(fixedDelay = 60000) // Runs 5 hours
+    @Override
+    public List<Book> searchBooksByListIds(List<Integer> ids) {
+        log.info("-- searchBooksById is starting with id "+ids);
+        if (ids.isEmpty())
+            throw new InvalidInputException("The ids list must NOT be empty");
+
+        List<Book> booksFromRequest = new ArrayList<>();
+        ids.stream().filter(id->id<=0).findAny().ifPresent(value->{throw new InvalidInputException("ID must be greater than 0");});
+        String stringIds=ids.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
+        String url = DOMAIN + "books?ids=" + stringIds;
+        HttpMethod method = HttpMethod.GET;
+
+        try {
+
+
+            log.info("iam going to invoke Gutendex "+url);
+            RequestEntity<?> requestEntity = new RequestEntity<>(headers, method, new URI(url));
+
+            // Send the HTTP request and receive the response
+            ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
+            log.info("Response from gutendex is " + responseEntity);
+            // Extract the response body
+            String responseBody = responseEntity.getBody();
+
+            // Process the JSON response
+            GutendexDto gutendexDto = objectMapper.readValue(responseBody, GutendexDto.class);
+
+            booksFromRequest=gutendexDto.getResults();
+            log.info("After extraction the response is" + booksFromRequest);
+
+        } catch (URISyntaxException | JsonProcessingException e) {
+            log.error("Something went wrong with the Call to Gutendex " + e);
+
+        }
+        log.info("-- end of searchBooksById with response" + booksFromRequest);
+        return booksFromRequest;
+    }
+
+    @Scheduled(fixedDelay = 300000) // Runs every 5 minutes
     @CacheEvict(value = "booksByTitle", allEntries = true)
     public void evictCache() {
         log.info("Evicting booksByTitle cache");

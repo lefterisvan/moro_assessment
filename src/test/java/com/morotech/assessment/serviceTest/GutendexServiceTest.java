@@ -27,6 +27,7 @@ import java.util.*;
 
 import static org.aspectj.bridge.MessageUtil.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,13 +44,13 @@ public class GutendexServiceTest {
     private static final String DOMAIN = "https://gutendex.com/";
 
     @BeforeEach
-    public  void init() {
+    public void init() {
 
         headers = new HttpHeaders();
         List<MediaType> media = Arrays.asList(MediaType.APPLICATION_JSON);
         headers.setAccept(media);
         gutendexService.init();
-        modelMapper=new ModelMapper();
+        modelMapper = new ModelMapper();
     }
 
     //testing searchBooksByTitle operation
@@ -84,6 +85,7 @@ public class GutendexServiceTest {
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenReturn(response);
         ResponseBook results = gutendexService.searchBooksByTitle(title);
+
         ResponseBook expected = new ResponseBook();
 
 
@@ -102,14 +104,8 @@ public class GutendexServiceTest {
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Client Error"));
 
+        assertThrows(HttpClientErrorException.class, () ->  gutendexService.searchBooksByTitle(title));
 
-        try {
-            gutendexService.searchBooksByTitle(title);
-
-
-        } catch (HttpClientErrorException e) {
-            assertEquals("400 Client Error", e.getMessage());
-        }
     }
 
     @Test
@@ -123,22 +119,18 @@ public class GutendexServiceTest {
 
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "server is down"));
+        assertThrows(HttpServerErrorException.class, () ->  gutendexService.searchBooksByTitle(title));
 
 
-        try {
-            gutendexService.searchBooksByTitle(title);
-
-        } catch (HttpServerErrorException e) {
-            assertEquals("500 server is down", e.getMessage());
-        }
     }
-//--------------------------------------------------------------------------------------------//
+
+    //--------------------------------------------------------------------------------------------//
     //testing searchBooksById operation
     @Test
     public void successCall_searchById() throws URISyntaxException {
-        Integer id=1;
+        Integer id = 1;
         HttpMethod method = HttpMethod.GET;
-        String url = DOMAIN + "books?ids="+id ;
+        String url = DOMAIN + "books?ids=" + id;
         ResponseEntity<String> response = new ResponseEntity<>(getSearchBookByIdSuccessResponse(), HttpStatus.OK);
 
         RequestEntity<Void> requestEntity = new RequestEntity<>(headers, method, new URI(url));
@@ -179,16 +171,11 @@ public class GutendexServiceTest {
 
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Client Error"));
+        assertThrows(HttpClientErrorException.class, () ->  gutendexService.searchBooksById(id));
 
 
-        try {
-            gutendexService.searchBooksById(id);
-
-
-        } catch (HttpClientErrorException e) {
-            assertEquals("400 Client Error", e.getMessage());
-        }
     }
+
     @Test
     public void serverUnavailable_CallForSearchById() throws URISyntaxException {
         Integer id = 1;
@@ -201,31 +188,75 @@ public class GutendexServiceTest {
         Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "server is down"));
 
+        assertThrows(HttpServerErrorException.class, () ->  gutendexService.searchBooksById(id));
+    }
 
-        try {
-            gutendexService.searchBooksById(id);
+    //------------------------------------------------------------------------------------//
+    //searchBooksByListIds
+    @Test
+    public void successCall_searchBooksByListIds() throws URISyntaxException {
+        String ids = "204,123,106,108,102,101,104,116,114,112";
+        HttpMethod method = HttpMethod.GET;
+        String url = DOMAIN + "books?ids=" + ids;
+        ResponseEntity<String> response = new ResponseEntity<>(getSearchBookByIdSuccessResponse(), HttpStatus.OK);
 
-        } catch (HttpServerErrorException e) {
-            assertEquals("500 server is down", e.getMessage());
-        }
+        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, method, new URI(url));
+
+        Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
+                .thenReturn(response);
+        List<Book> results = gutendexService.searchBooksByListIds(Arrays.asList(204, 123, 106, 108, 102, 101, 104, 116, 114, 112));
+
+
+        assertEquals(getResultsById(), results);
+    }
+
+    @Test
+    public void connectionError_searchBooksByListIds() throws URISyntaxException {
+        String ids = "204,123,106,108,102,101,104,116,114,112";
+
+        HttpMethod method = HttpMethod.GET;
+        String url = DOMAIN + "books?ids=" + ids;
+
+        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, method, new URI(url));
+
+        Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Client Error"));
+
+        assertThrows(HttpClientErrorException.class, () -> gutendexService.searchBooksByListIds(Arrays.asList(204, 123, 106, 108, 102, 101, 104, 116, 114, 112)));
+
+    }
+
+    @Test
+    public void serverUnavailable_searchBooksByListIds() throws URISyntaxException {
+        String ids = "204,123,106,108,102,101,104,116,114,112";
+
+        HttpMethod method = HttpMethod.GET;
+        String url = DOMAIN + "books?ids=" + ids;
+
+        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, method, new URI(url));
+
+        Mockito.when(restTemplate.exchange(eq(requestEntity), eq(String.class)))
+                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "server is down"));
+
+        assertThrows(HttpServerErrorException.class, () -> gutendexService.searchBooksByListIds(Arrays.asList(204, 123, 106, 108, 102, 101, 104, 116, 114, 112)));
+
+
     }
 
 
-
-    private List<Book> getResultsById()
-    {
+    private List<Book> getResultsById() {
         List<Book> results = new ArrayList<>();
-        Book book= new Book();
+        Book book = new Book();
         book.setId(1);
         book.setTitle("The Declaration of Independence of the United States of America");
         book.setLanguages(Arrays.asList("en"));
         book.setCopyright(false);
         book.setMediaType("Text");
         book.setDownloadCount(1548);
-        book.setBookshelves(Arrays.asList("American Revolutionary War","Politics","United States Law"));
-        book.setSubjects(Arrays.asList(    "United States -- History -- Revolution, 1775-1783 -- Sources", "United States. Declaration of Independence"));
-        List<Person> authors=new ArrayList<>();
-        authors.add(new Person("Jefferson, Thomas",1743,1826));
+        book.setBookshelves(Arrays.asList("American Revolutionary War", "Politics", "United States Law"));
+        book.setSubjects(Arrays.asList("United States -- History -- Revolution, 1775-1783 -- Sources", "United States. Declaration of Independence"));
+        List<Person> authors = new ArrayList<>();
+        authors.add(new Person("Jefferson, Thomas", 1743, 1826));
         book.setAuthors(authors);
 
         Map<String, String> format = new HashMap<>();
@@ -270,8 +301,8 @@ public class GutendexServiceTest {
                 "    \"previous\": null,\n" +
                 "    \"results\": []";
     }
-    private String getSearchBookByIdSuccessResponse()
-    {
+
+    private String getSearchBookByIdSuccessResponse() {
         return "{\n" +
                 "  \"count\": 1,\n" +
                 "  \"next\": null,\n" +

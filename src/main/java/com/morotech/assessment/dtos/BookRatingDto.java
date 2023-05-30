@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Date;
 
 @Data
 @ToString
@@ -19,5 +20,6 @@ public class BookRatingDto {
     @Max(value = 5,message = "The maximum value is 5")
     private int rating;
     private String review;
+    private Date creationDate;
 
 }

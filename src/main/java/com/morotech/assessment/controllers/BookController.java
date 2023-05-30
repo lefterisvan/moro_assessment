@@ -48,8 +48,8 @@ public class BookController {
     public String bookRating(@RequestBody @Valid BookRatingDto bookRatingDto) throws SQLException {return  bookRatingService.bookRating(bookRatingDto);}
 
     @GetMapping("/bookDetails")
-    @ApiOperation(value = "Gets as an input the id of a book, searches the book in the database , retrieves the rating and the reviews. Makes a request towards Gutendex for retrieving the book details and" +
-            "returns the book details, bokk rating and book reviews ")
+    @ApiOperation(value = "Gets as an input the id of a book, searches the book in the database , retrieves the average rating and the reviews. Makes a request towards Gutendex for retrieving the book details and" +
+            "returns the book details, book rating and book reviews ")
     @ApiResponses(value = {@ApiResponse(code = 400, message = "The id must have a value "),@ApiResponse(code = 400, message = "The id must be greater than 0"),
             @ApiResponse(code = 404, message = "There is no rating for this book"),
             @ApiResponse(code = 404, message = "The book that you are looking for does not exist in Gutendex"),
@@ -58,6 +58,15 @@ public class BookController {
     public BookDetailsDTO bookDetails(@RequestParam Integer id)
     {
         return bookRatingService.getBookDetails(id);
+    }
+
+    @GetMapping("/getBookDetailsByAvgRating")
+    @ApiOperation(value = "Gets as an input the number of the books that the user wants to see, searches the books in the database , retrieves the average rating and the reviews. " +
+            "Makes a request towards Gutendex by ids for retrieving the details of all the books and returns a list with the books details , average books rating and books reviews ")
+    @ApiResponses(value = {@ApiResponse(code = 400, message = "The N must have a value "),@ApiResponse(code = 400, message = "The N must be greater than 0")})
+    public List<BookDetailsDTO> getBokDetailsByAvgRating(@RequestParam Integer numberOfBooks)
+    {
+        return bookRatingService.getTopNOrderByAvg(numberOfBooks);
     }
 
 

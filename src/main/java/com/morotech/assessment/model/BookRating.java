@@ -1,14 +1,18 @@
 package com.morotech.assessment.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "book_rating")
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
+
 public class BookRating {
     @Id
     @Column(name = "id")
@@ -22,6 +26,9 @@ public class BookRating {
     private Integer rating;
     @Column(name = "review")
     private String review;
+
+    @CreationTimestamp
+    private Date creationDate;
 
 
 
